@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "multitool-agent"
+version = "0.1.0"
+description = "A production-style Python multi-tool AI agent using Anthropic tool calling."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+    { name = "Developer" }
+]
+dependencies = [
+    "groq>=0.11.0",
+    "anthropic>=0.30.0",
+    "python-dotenv>=1.0.0",
+    "httpx>=0.25.0",
+]
+
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-mock>=3.12.0",
+]
+
+[project.scripts]
+multi-agent = "multitool_agent.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-m 'not integration'"
+markers = [
+    "integration: marks tests as integration tests that require live API credentials (run with '-m integration')",
+]
+

@@ -1,0 +1,37 @@
+# Python bytecode and cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual environment
+.venv/
+env/
+venv/
+ENV/
+
+# Secrets and environment variables
+.env
+.env.local
+*.pem
+*.key
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+eggs/
+.eggs/
+
+# IDE and editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Project workspace user files (preserve .gitkeep)
+workspace/*
+!workspace/.gitkeep
