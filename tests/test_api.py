@@ -61,7 +61,16 @@ def test_chat_endpoint(mock_run: MagicMock) -> None:
     assert data["steps"][0]["tool_calls"][0]["name"] == "calculator"
 
 
+def test_root_serves_html() -> None:
+    """Test that root endpoint serves the interactive web client HTML."""
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "text/html" in response.headers["content-type"]
+    assert "Multi-Tool AI Agent" in response.text
+
+
 def test_clear_session_not_found() -> None:
     """Test clearing a non-existent session returns 404."""
     response = client.delete("/api/v1/sessions/non-existent-session-id")
     assert response.status_code == 404
+

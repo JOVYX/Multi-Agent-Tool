@@ -6,10 +6,13 @@ import asyncio
 import json
 from dataclasses import asdict
 from typing import Any, AsyncGenerator, Dict, List, Optional
+from pathlib import Path
 from uuid import uuid4
 
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from sse_starlette.sse import EventSourceResponse
 
@@ -27,6 +30,19 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
 )
+
+STATIC_DIR = Path(__file__).parent / "static"
+if STATIC_DIR.is_dir():
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
+
+@app.get("/", include_in_schema=False)
+def serve_root() -> Any:
+    """Serve the interactive web chat interface."""
+    index_file = STATIC_DIR / "index.html"
+    if index_file.is_file():
+        return FileResponse(index_file)
+    return {"message": "Multi-Tool AI Agent API is running. Visit /docs for API documentation."}
 
 # Enable CORS for frontend integration
 app.add_middleware(

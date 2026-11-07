@@ -40,3 +40,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
 
 # Default command: start the FastAPI web service with Uvicorn
 CMD ["uvicorn", "multitool_agent.api:app", "--host", "0.0.0.0", "--port", "8000"]
+
