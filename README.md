@@ -1,6 +1,12 @@
 # Multi-Tool AI Agent
 
-A production-style, modular Python AI agent supporting **Groq** (`console.groq.com`) and **Anthropic** with function/tool calling and real-time streaming.
+[![Python](https://img.shields.io/badge/Python-3.11%20%7C%203.12-blue?logo=python)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688?logo=fastapi)](https://fastapi.tiangolo.com)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)](Dockerfile)
+[![Tests](https://img.shields.io/badge/Tests-46%20Passed-brightgreen)](tests/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+A production-style, modular Python AI agent supporting **Groq** (`console.groq.com`) and **Anthropic** with function/tool calling, real-time streaming, and an integrated **FastAPI REST / Server-Sent Events (SSE)** web service.
 
 This project demonstrates a real agent architecture rather than a simple wrapper script. Powered by Groq's ultra-fast inference (default model: `openai/gpt-oss-120b`), the agent understands user requests, dynamically selects appropriate tools from an extensible registry, executes them with validated arguments, inspects the tool results, and continues reasoning iteratively until it delivers a grounded final response.
 
@@ -9,16 +15,18 @@ This project demonstrates a real agent architecture rather than a simple wrapper
 ## Features
 
 - **Groq & Anthropic Providers**: Seamlessly integrates with Groq's high-speed API (`console.groq.com`) using `openai/gpt-oss-120b` or Claude models via Anthropic tool calling.
-- **Real-Time Token Streaming**: Streams generated tokens directly to the terminal as they arrive (`for chunk in completion: print(...)`).
+- **FastAPI Web Service & OpenAPI Docs**: Exposes the complete agent lifecycle over a REST API and real-time Server-Sent Events (SSE) streaming with interactive Swagger UI at `/docs`.
+- **Docker & Compose Ready**: Multi-stage container builds with non-root security execution and automated volume persistence.
+- **CI/CD Pipeline**: Automated GitHub Actions testing, multi-version Python compatibility (3.11, 3.12), and container builds.
+- **Real-Time Token Streaming**: Streams generated tokens directly to the terminal or web clients as they arrive.
 - **Multi-Step Agent Loop**: Handles multi-turn tool calling, including multiple sequential tool steps and parallel tool requests in a single response turn.
 - **AST-Based Safe Calculator**: Mathematical evaluator based on Python's Abstract Syntax Tree (`ast.parse`) that securely evaluates arithmetic, parentheses, decimals, and percentages without arbitrary code execution.
 - **Sandboxed File Operations**: `file_read` and `file_write` tools strictly sandboxed to a designated `workspace/` directory with path traversal guards.
 - **Configurable Web Search**: Search tool supporting Tavily, Brave Search, and DuckDuckGo with structured output (`Title`, `URL`, `Snippet`) and timeout handling.
 - **Extensible Tool Registry**: Clean `BaseTool` abstraction and `ToolRegistry` for registering and dispatching tools with JSON schemas (both OpenAI/Groq function format and Anthropic format).
-- **Conversation Memory**: Maintains multi-turn context throughout the CLI session, allowing natural references to prior results.
+- **Conversation Memory**: Maintains multi-turn context throughout the CLI or REST session, allowing natural references to prior results.
 - **Defensive Security Controls**: Rejection of path traversal (`../`), denial-of-service computation limits, secret masking in logs, and tool output size clamping.
-- **Interactive CLI**: Terminal interface with session commands (`/help`, `/tools`, `/status`, `/clear`, `/exit`).
-- **Comprehensive Offline Test Suite**: 42 unit tests covering all tools and agent loop scenarios using mocked clients, plus optional live API integration tests.
+- **Comprehensive Offline Test Suite**: 46 unit tests covering all tools, agent loop scenarios, and API endpoints using mocked clients, plus optional live API integration tests.
 
 
 ---
@@ -293,6 +301,60 @@ You > Now calculate 10% of that.
   ✓ Result: 50
 
 Agent > 10% of 500 is 50.
+```
+
+---
+
+### REST API & Web Service
+
+Start the FastAPI application:
+
+```bash
+uvicorn multitool_agent.api:app --reload --port 8000
+```
+or simply:
+```bash
+make run-api
+```
+
+- **Interactive Swagger Documentation**: Visit [http://localhost:8000/docs](http://localhost:8000/docs)
+- **ReDoc API Reference**: Visit [http://localhost:8000/redoc](http://localhost:8000/redoc)
+
+#### Sample Endpoints:
+
+- `GET /health`: Service health and active model provider.
+- `GET /api/v1/tools`: List all registered tools with their input parameter schemas.
+- `POST /api/v1/chat`: Synchronous multi-step agent reasoning with structured tool call steps.
+- `POST /api/v1/chat/stream`: Real-time Server-Sent Events (SSE) token and event streaming.
+- `DELETE /api/v1/sessions/{session_id}`: Clear conversation history for a given session.
+
+---
+
+## Docker & Containerization
+
+Build and run the agent in a lightweight, secure container:
+
+### Using Docker Compose (Recommended)
+
+```bash
+# Start the API service in the background
+docker compose up -d
+
+# Check live logs
+docker compose logs -f
+
+# Stop service
+docker compose down
+```
+
+### Using Standard Docker
+
+```bash
+# Build image
+docker build -t multitool-agent:latest .
+
+# Run container
+docker run -p 8000:8000 --env-file .env multitool-agent:latest
 ```
 
 ---

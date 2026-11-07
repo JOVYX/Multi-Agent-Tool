@@ -9,8 +9,10 @@ from multitool_agent.config import Settings, _mask_secret, load_settings
 
 def test_settings_defaults(tmp_path: Path) -> None:
     """Test default values when no environment variables are set."""
+    empty_env = tmp_path / ".env"
+    empty_env.touch()
     with patch.dict(os.environ, {}, clear=True):
-        settings = load_settings(reload=True)
+        settings = load_settings(env_path=empty_env, reload=True)
         assert settings.llm_provider == "groq"
         assert settings.groq_model == "openai/gpt-oss-120b"
         assert settings.groq_reasoning_effort == "medium"
